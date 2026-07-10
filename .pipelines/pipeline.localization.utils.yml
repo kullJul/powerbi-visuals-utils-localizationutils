@@ -10,7 +10,7 @@ variables:
 resources:
   repositories:
     - repository: powerbi-visuals-utils-localizationutils
-      endpoint: 'pbicvloc GitHub'
+      endpoint: 'pbicvloc-github'
       type: github
       name: microsoft/powerbi-visuals-utils-localizationutils
       ref: refs/heads/$(branchRef)
