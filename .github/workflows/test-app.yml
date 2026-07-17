@@ -15,8 +15,14 @@ jobs:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
-      - name: Show authenticated user
+      - name: Check repository access
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+            GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          gh api /user
+            gh api repos/kullJul/powerbi-visuals-utils-localizationutils
+
+      - name: Test contents permission
+        env:
+            GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+            gh api repos/kullJul/powerbi-visuals-utils-localizationutils/contents
