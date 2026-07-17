@@ -1,0 +1,59 @@
+name: GitHub App PR Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Create test branch
+        run: |
+          BRANCH_NAME="test/github-app-$(date +%s)"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          git checkout -b "$BRANCH_NAME"
+
+      - name: Modify file
+        run: |
+          echo "Updated by GitHub App at $(date)" >> github-app-test.txt
+
+      - name: Commit changes
+        run: |
+          git config user.name "PowerBI Localization Automation[bot]"
+          git config user.email "4297406+PowerBILocalizationAutomation[bot]@users.noreply.github.com"
+
+          git add github-app-test.txt
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "Test commit created by GitHub App"
+
+      - name: Push branch
+        run: |
+          git push origin "$BRANCH_NAME"
+
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh pr create \
+            --base main \
+            --head "$BRANCH_NAME" \
+            --title "GitHub App Test PR" \
+            --body "This PR was created automatically by the GitHub App."
